@@ -1,0 +1,72 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0-oas3"
+  title: API to manage Export Requests of Files
+  description: >-
+   This API allows a user to request an export and query status of previously submitted requests.
+security:
+  - application:
+      - read
+      - write
+paths:
+  /exportRequest:
+    post:
+      summary: Submit a new Request
+      description: >-
+       This endpoint creates a new Export Reqeust.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportRequest'
+      responses:
+        '201':
+          description: Accepted
+        '400':
+          description: Bad Request - misisng or invalid metadata passed.
+
+    get:
+      summary: Retrieve a list of previously submitted requests (Filters to be defined)
+      responses:
+        '200':
+          description: List of matching requests.
+
+  /ping:
+    get:
+      summary: Server heartbeat operation
+      description: >-
+        This operation shows how to override the global security defined above,
+        as we want to open it up for all users.
+      security: []
+      responses:
+        '200':
+          description: OK
+
+servers:
+  - url: 'https://virtserver.swaggerhub.com/mscaldas2012/ExportFIles/1.0.0'
+components:
+  schemas:
+    ExportRequest:
+      type: object
+      properties:
+        user:
+          type: string
+          description: The user issuing the request
+        timestamp:
+          type: string
+          format: ISO-XXX Date
+          description: Time of submission of request.
+        filter:
+          type: string
+          description: The Filter to be applied querying the data.
+
+  securitySchemes:
+    application:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: 'http://example.com/oauth/token'
+          scopes:
+            write: allows modifying resources
+            read: allows reading resources

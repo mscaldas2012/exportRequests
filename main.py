@@ -10,8 +10,6 @@ HTTP_PROXY_STATUS_CODE_RESPONSE = "statusCode"
 HTTP_PROXY_METHOD_NAME = "httpMethod"
 HTTP_PROXY_BODY_NAME = "body"
 
-# Cosntants for the Model expected to be received for this function.
-MODEL_PAYLOAD = "payload"
 
 # The boto3 dynamoDB resource
 dynamodb_resource = resource('dynamodb')
@@ -29,9 +27,9 @@ def lambda_handler(event, context):
     Main handler for lambda functions
     """
     # print(get_table_metadata())
-    ev = event[HTTP_PROXY_BODY_NAME]
-    body = json.loads(ev)
     operation = event[HTTP_PROXY_METHOD_NAME]
+    print("####")
+    print("operation ", operation)
     if operation == "notfound":
         return_dict[HTTP_PROXY_BODY_NAME] = "{'message': 'Unknown operation.'}"
         return_dict[HTTP_PROXY_STATUS_CODE_RESPONSE] = 400
@@ -39,13 +37,20 @@ def lambda_handler(event, context):
 
     elif (operation == "POST"):
         print("creating Record...")
-        response = add_item(body[MODEL_PAYLOAD])
+        ev = event[HTTP_PROXY_BODY_NAME]
+        body = json.loads(ev)
+
+        response = add_item(body)
         return_dict[HTTP_PROXY_STATUS_CODE_RESPONSE] = 202
         return_dict[HTTP_PROXY_BODY_NAME] = "Request Successfully Received!"
         return return_dict
 
     elif (operation == "GET"):
-        return scan_table()
+        content =  scan_table()
+        return_dict[HTTP_PROXY_STATUS_CODE_RESPONSE] =200
+        return_dict[HTTP_PROXY_BODY_NAME] = str(content["Items"])
+        return_dict["headers"] = None
+        return return_dict
     elif (operation == "echo"):
         return "echo successful"
 
